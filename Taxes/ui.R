@@ -13,7 +13,8 @@ shinyUI(fluidPage(
       column(width = 3.6, offset = 0,
              selectInput("state", 
                          label = h5("State:"),
-                         choices = list("MD"),
+                         choices = list("AK","CO","IL","IN","FL","MD","NV",
+                                        "NH","SD","TN","TX","WA","WY"),
                          selected = "MD"))
       
     )

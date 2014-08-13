@@ -1,7 +1,8 @@
 #server.R for Roth vs. Traditional
 
 library(shiny)
-source("helpers.R")
+source("taxes.R")
+source("ss.R")
 
 # Define server logic required to draw a histogram
 shinyServer(
@@ -17,15 +18,19 @@ shinyServer(
       fica(input$income)
     })    
     getTotal <- reactive({
-      total_tax(as.numeric(input$income), input$state)
+      total_tax(as.numeric(input$income), getState())
     })
     output$text1 <- renderText({
-      paste("Based on an income of", input$income, "and a",
-            "standard deduction, your state taxes are", getState(),
-            ",", "your federal taxes are", getFed(),
-            ", and your FICA deductions are", getFICA(),".",
-            "Your total taxes are", getTotal(), 
-            "and your post-tax pay is", input$income - getTotal(), ".")
+      paste("Based on an income of $",formatC(input$income,digits=2,
+            format="f",big.mark=","),"and a standard deduction, your",
+            "state taxes are $",formatC(getState(),digits=2,format="f",
+            big.mark=","),",", "your federal taxes are $",formatC(getFed(),
+            digits=2,format="f",big.mark=","),", and your FICA deductions",
+            "are $",formatC(getFICA(),digits=2,format="f",big.mark=","),
+            ".","Your total taxes are $",formatC(getTotal(),digits=2,
+            format="f",big.mark=","),"and your post-tax pay is $",
+            formatC(input$income - getTotal(),digits=2,format="f",
+            big.mark=","), ".")
     })
     
     #output$plot <- renderPlot({    
