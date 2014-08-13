@@ -1,0 +1,73 @@
+---
+title: "Retirement Calculator"
+author: "Diego Saenz"
+date: "Friday, August 01, 2014"
+output: html_document
+runtime: shiny
+---
+
+This is my first crack at using an R Markdown document made interactive using Shiny.  
+
+To go to the home page, [click here](http://www.anotherfrugalengineer.com).
+
+## Inputs and Outputs
+
+You can embed Shiny inputs and outputs in your document. Outputs are automatically updated whenever inputs change.  This demonstrates how a standard R plot can be made interactive by wrapping it in the Shiny `renderPlot` function. The `selectInput` and `sliderInput` functions create the input widgets used to drive the plot.
+
+```{r, echo=FALSE}
+inputPanel(
+  selectInput("savings_rate", label = "Savings Rate:",
+              choices = c(0, 10, 20, 30, 40, 50, 60, 70, 80), selected = 20),
+  
+  sliderInput("age", label = "Age:",
+              min = 0, max = 100, value = 25, step = 1)
+
+)
+
+renderPlot({
+  age <- as.numeric(input$age)
+  s <- as.numeric(input$savings_rate) / 100 #savings rate
+  end <- 100
+  years <- c(age:end)
+  assets <- seq(age:end)
+  income <- 100000 #post tax income
+  assets[1] <- 250000
+  r <- 0.07 #returns
+  i <- 0.03  #inflation
+  n <- 2
+  while(assets[n-1] < (income * (1 - s)) / (r - i)){
+    income <- income * (1 + i)
+    assets[n] <- assets[n-1] * (1 + r) + income * s
+    n <- n + 1  
+  }
+  retire <- age + n - 1
+  while(n < end - age + 2){
+    income <- income * (1 + i)
+    assets[n] <- assets[n-1] * (1 + r) - income * (1 - s)
+    n <- n + 1
+  }
+  plot(years, assets, col = "blue")
+})
+```
+
+## Retirement Age
+
+It's also possible to embed an entire Shiny application within an R Markdown document using the `shinyAppDir` function. This example embeds a Shiny application located in another directory:
+
+```{r, echo=FALSE}
+shinyAppDir(
+  system.file("examples/06_tabsets", package="shiny"),
+  options=list(
+    width="100%", height=550
+  )
+)
+```
+
+Note the use of the `height` parameter to determine how much vertical space the embedded application should occupy.
+
+You can also use the `shinyApp` function to define an application inline rather then in an external directory.
+
+In all of R code chunks above the `echo = FALSE` attribute is used. This is to prevent the R code within the chunk from rendering in the document alongside the Shiny components.
+
+
+
